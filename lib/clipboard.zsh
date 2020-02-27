@@ -30,42 +30,6 @@
 #
 ##
 #
-function clipcopy() {
-  emulate -L zsh
-  local file=$1
-  if [[ $OSTYPE == darwin* ]]; then
-    if [[ -z $file ]]; then
-      pbcopy
-    else
-      cat $file | pbcopy
-    fi
-  elif [[ $OSTYPE == cygwin* ]]; then
-    if [[ -z $file ]]; then
-      cat > /dev/clipboard
-    else
-      cat $file > /dev/clipboard
-    fi
-  else
-    if (( $+commands[xclip] )); then
-      if [[ -z $file ]]; then
-        xclip -in -selection clipboard
-      else
-        xclip -in -selection clipboard $file
-      fi
-    elif (( $+commands[xsel] )); then
-      if [[ -z $file ]]; then
-        xsel --clipboard --input 
-      else
-        cat "$file" | xsel --clipboard --input
-      fi
-    else
-      print "clipcopy: Platform $OSTYPE not supported or xclip/xsel not installed" >&2
-      return 1
-    fi
-  fi
-}
-
-
 # clippaste - "Paste" data from clipboard to stdout
 #
 # Usage:
@@ -90,7 +54,7 @@ function detect-clipboard() {
   if [[ "${OSTYPE}" == darwin* ]] && (( ${+commands[pbcopy]} )) && (( ${+commands[pbpaste]} )); then
     function clipcopy() { pbcopy < "${1:-/dev/stdin}"; }
     function clippaste() { pbpaste; }
-  elif [[ "${OSTYPE}" == cygwin* ]]; then
+  elif [[ "${OSTYPE}" == (cygwin|msys)* ]]; then
     function clipcopy() { cat "${1:-/dev/stdin}" > /dev/clipboard; }
     function clippaste() { cat /dev/clipboard; }
   elif [ -n "${WAYLAND_DISPLAY:-}" ] && (( ${+commands[wl-copy]} )) && (( ${+commands[wl-paste]} )); then
@@ -114,10 +78,9 @@ function detect-clipboard() {
   elif [ -n "${TMUX:-}" ] && (( ${+commands[tmux]} )); then
     function clipcopy() { tmux load-buffer "${1:--}"; }
     function clippaste() { tmux save-buffer -; }
-  if [[ $OSTYPE == darwin* ]]; then
-    pbpaste
-  elif [[ $OSTYPE == (cygwin|msys)* ]]; then
-    cat /dev/clipboard
+  elif [[ $(uname -r) = *icrosoft* ]]; then
+    function clipcopy() { clip.exe < "${1:-/dev/stdin}"; }
+    function clippaste() { _retry_clipboard_detection_or_fail clippaste "$@"; }
   else
     function _retry_clipboard_detection_or_fail() {
       local clipcmd="${1}"; shift
