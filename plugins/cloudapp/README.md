@@ -4,8 +4,16 @@
 
 To use it, add `cloudapp` to the plugins array of your `~/.zshrc` file:
 
+<<<<<<< HEAD
 ```
 plugins=(... cloudapp)
+||||||| ca627655
+```
+plugins=(... dash)
+=======
+```zsh
+plugins=(... cloudapp)
+>>>>>>> f400ea1e57ef00d9bef6fa77206ee9c1997eb1d3
 ```
 
 ## Requirements

@@ -9,14 +9,23 @@
 # The following options are available:
 #
 #   -f, --fish       fish simulation, equivalent to -l -s -t.
+#   -g, --glob       Add asterisk to allow globbing of shrunk path (equivalent to -e "*")
 #   -l, --last       Print the last directory's full name.
 #   -s, --short      Truncate directory names to the number of characters given by -#. Without
 #                    -s, names are truncated without making them ambiguous.
 #   -t, --tilde      Substitute ~ for the home directory.
 #   -T, --nameddirs  Substitute named directories as well.
+<<<<<<< HEAD
 #   -#               Truncate each directly to at least this many characters inclusive of the
 #                    ellipsis character(s) (defaulting to 1).
 #   -e SYMBOL        Postfix symbol(s) to indicate that a directory name had been truncated.
+||||||| ca627655
+=======
+#   -#               Truncate each directly to at least this many characters inclusive of the
+#                    ellipsis character(s) (defaulting to 1).
+#   -e SYMBOL        Postfix symbol(s) to indicate that a directory name had been truncated.
+#   -q, --quote      Quote special characters in the shrunk path
+>>>>>>> f400ea1e57ef00d9bef6fa77206ee9c1997eb1d3
 #
 # The long options can also be set via zstyle, like
 #   zstyle :prompt:shrink_path fish yes
@@ -40,8 +49,15 @@ shrink_path () {
         typeset -i short=0
         typeset -i tilde=0
         typeset -i named=0
+<<<<<<< HEAD
         typeset -i length=1
         typeset ellipsis=""
+||||||| ca627655
+=======
+        typeset -i length=1
+        typeset ellipsis=""
+        typeset -i quote=0
+>>>>>>> f400ea1e57ef00d9bef6fa77206ee9c1997eb1d3
 
         if zstyle -t ':prompt:shrink_path' fish; then
                 lastfull=1
@@ -55,6 +71,8 @@ shrink_path () {
         zstyle -t ':prompt:shrink_path' last && lastfull=1
         zstyle -t ':prompt:shrink_path' short && short=1
         zstyle -t ':prompt:shrink_path' tilde && tilde=1
+        zstyle -t ':prompt:shrink_path' glob && ellipsis='*'
+        zstyle -t ':prompt:shrink_path' quote && quote=1
 
         while [[ $1 == -* ]]; do
                 case $1 in
@@ -70,14 +88,23 @@ shrink_path () {
                         -h|--help)
                                 print 'Usage: shrink_path [-f -l -s -t] [directory]'
                                 print ' -f, --fish      fish-simulation, like -l -s -t'
+                                print ' -g, --glob      Add asterisk to allow globbing of shrunk path (equivalent to -e "*")'
                                 print ' -l, --last      Print the last directory''s full name'
                                 print ' -s, --short     Truncate directory names to the number of characters given by -#. Without'
                                 print '                 -s, names are truncated without making them ambiguous.'
                                 print ' -t, --tilde     Substitute ~ for the home directory'
                                 print ' -T, --nameddirs Substitute named directories as well'
+<<<<<<< HEAD
                                 print ' -#              Truncate each directly to at least this many characters inclusive of the'
                                 print '                 ellipsis character(s) (defaulting to 1).'
                                 print ' -e SYMBOL       Postfix symbol(s) to indicate that a directory name had been truncated.'
+||||||| ca627655
+=======
+                                print ' -#              Truncate each directly to at least this many characters inclusive of the'
+                                print '                 ellipsis character(s) (defaulting to 1).'
+                                print ' -e SYMBOL       Postfix symbol(s) to indicate that a directory name had been truncated.'
+                                print ' -q, --quote     Quote special characters in the shrunk path'
+>>>>>>> f400ea1e57ef00d9bef6fa77206ee9c1997eb1d3
                                 print 'The long options can also be set via zstyle, like'
                                 print '  zstyle :prompt:shrink_path fish yes'
                                 return 0
@@ -89,6 +116,7 @@ shrink_path () {
                                 tilde=1
                                 named=1
                         ;;
+<<<<<<< HEAD
                         -[0-9]|-[0-9][0-9])
                                 length=${1/-/}
                         ;;
@@ -96,6 +124,22 @@ shrink_path () {
                                 shift
                                 ellipsis="$1"
                         ;;
+||||||| ca627655
+=======
+                        -[0-9]|-[0-9][0-9])
+                                length=${1/-/}
+                        ;;
+                        -e)
+                                shift
+                                ellipsis="$1"
+                        ;;
+                        -g|--glob)
+                                ellipsis='*'
+                        ;;
+                        -q|--quote)
+                                quote=1
+                        ;;
+>>>>>>> f400ea1e57ef00d9bef6fa77206ee9c1997eb1d3
                 esac
                 shift
         done
@@ -136,6 +180,7 @@ shrink_path () {
                                 expn=($(echo ${part}*(-/)))
                                 (( short )) && [[ $i -ge $((length - ellen)) ]] && break
                         done
+<<<<<<< HEAD
 
                         typeset -i dif=$(( ${#dir} - ${#part} - ellen ))
                         if [[ $dif -gt 0 ]]
@@ -144,6 +189,19 @@ shrink_path () {
                         else
                             part="$dir"
                         fi
+||||||| ca627655
+=======
+
+                        typeset -i dif=$(( ${#dir} - ${#part} - ellen ))
+                        if [[ $dif -gt 0 ]]
+                        then
+                            (( quote )) && part=${(q)part}
+                            part+="$ellipsis"
+                        else
+                            part="$dir"
+                            (( quote )) && part=${(q)part}
+                        fi
+>>>>>>> f400ea1e57ef00d9bef6fa77206ee9c1997eb1d3
                         result+="/$part"
                         cd -q $dir
                         shift tree
